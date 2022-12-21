@@ -61,10 +61,12 @@ class AttentionHead(torch.nn.Module):
 
 class MultiAttentionHead(torch.nn.Module):
 
-    def __init__(self, embedding_size: int, heads: int, layer:int=None) -> None:
+    def __init__(self, embedding_size: int, heads: int, dropout: float=0.1, layer:int=None) -> None:
         assert embedding_size % heads == 0, "embedding size must be divisible by heads."
         super().__init__()
         self.layer = layer
+        self.dropout = torch.nn.Dropout(dropout)
+        self.layer_norm = torch.nn.LayerNorm(embedding_size)
 
         out_size = embedding_size // heads
 
@@ -78,9 +80,9 @@ class MultiAttentionHead(torch.nn.Module):
                                     'emb']) -> TensorType['b', 't', 'out']:
         combined = torch.cat([head(x) for head in self.heads], dim=-1)
         debug(combined, self.layer, "heads-combined")
-        multihead = combined @ self.weight
+        multihead = self.dropout(combined @ self.weight)
         debug(multihead, self.layer, "multihead")
-        output = multihead + x
+        output = self.layer_norm(multihead + x)
         debug(output, self.layer, "layer")
         return output
 
