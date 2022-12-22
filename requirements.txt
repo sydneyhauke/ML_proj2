@@ -1,0 +1,7 @@
+numpy==1.23.5
+permutation==0.4.0
+torch==1.13.1
+torchtyping==0.1.4
+typeguard==2.13.3
+matplotlib==3.6.2
+ipykernel==6.19.4
